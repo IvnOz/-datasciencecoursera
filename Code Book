@@ -1,0 +1,47 @@
+Run_a.R contains the steps for tidying up data from the coursera project Getting and Cleaning data. 
+
+1.Download and extract dataset
+
+from the folder "UCI HAR Dataset"
+
+2. Assign each file to a variable: 
+features <- "UCI HAR Dataset/features.txt" The features selected for this database come from the accelerometer and gyroscope 3-axial raw signals tAcc-XYZ and tGyro-XYZ. These time domain signals (prefix 't' to denote time) were captured at a constant rate of 50 Hz. Then they were filtered using a median filter and a 3rd order low pass Butterworth filter with a corner frequency of 20 Hz to remove noise. Similarly, the acceleration signal was then separated into body and gravity acceleration signals (tBodyAcc-XYZ and tGravityAcc-XYZ) using another low pass Butterworth filter with a corner frequency of 0.3 Hz. 
+activities <- "UCI HAR Dataset/activity_labels.txt", List of activities performed when the corresponding measurements were taken 
+subject_test <- "UCI HAR Dataset/test/subject_test.txt", contains test data of 9/30 volunteer test subjects being observed
+x_test <- "UCI HAR Dataset/test/X_test.txt", contains recorded features test data
+y_test <- UCI HAR Dataset/test/y_test.txt",contains test data of activities’code labels
+subject_train <- "UCI HAR Dataset/train/subject_train.txt",  contains train data of 21/30 volunteer subjects being observed
+x_train <- "UCI HAR Dataset/train/X_train.txt", contains recorded features train data
+y_train <- "UCI HAR Dataset/train/y_train.txt", contains train data of activities’code labels
+
+
+#ANALISIS
+
+#Creates dataset with test and train variables
+
+x<- rbind(x_test, x_train)
+y<- rbind(y_test, y_train)
+subject<- rbind(subject_test,subject_train)
+df<- cbind(subject, y, x)
+
+#Gets the mean and standard deviation for the measures
+
+Descriptives<- df%>%
+  select(subject, code, contains("mean"), contains("std"))
+
+#Uses descriptive activity names to name the activities in the data set
+
+  df$code<- activities[df$code,2]
+  
+#Appropriately labels the data set with descriptive variable names.
+  names(df)[2] = "activity"
+  names(df)<-gsub("tBody", "TimeBody", names(df))
+  names(df)<-gsub("BodyBody", "Body", names(d))
+  
+#creates a second, independent tidy data set with the average of each
+  #variable for each activity and each subject.
+  
+  Final<- df %>%
+    group_by(subject, activity) %>%
+    summarise_all(funs(mean))
+  write.table(Final, "FinalData.txt", row.name=FALSE)
